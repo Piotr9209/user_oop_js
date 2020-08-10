@@ -17,6 +17,10 @@
 
 import moment from "moment";
 import is from "is_js";
+import {
+    v4 as uuidv4
+} from 'uuid';
+
 
 class Validation {
     static isEmail(email) {
@@ -27,14 +31,13 @@ class Validation {
         is.setRegexp(/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/, 'alphaNumeric');
         if (!is.alphaNumeric(password)) throw new Error('is wrong password');
     }
-    //alphaNumeric powinen być zadeklarowany w construktorze w sensie is.setRegexp
 
     static isSex(sex) {
         if (!is.inArray(sex, ["male", "female"])) throw new Error(`is wrong sex`);
     }
 
-    static isType(type) {
-        if (!is.inArray(type, ["user", "admin"])) throw new Error(`is wrong type user`);
+    static isEntryLevel(entryLevel) {
+        if (!is.inArray(entryLevel, ["user", "admin"])) throw new Error(`is wrong type user`);
     }
 
     static isEmpty(value) {
@@ -47,23 +50,23 @@ class Validation {
 }
 
 class User {
-    constructor(name, surname, dateOfBirth, password, sex, email, type) { //type=entryLevel, zmienić kolejność konstruktora
+    constructor(name, surname, email, password, dateOfBirth, sex, entryLevel = 'user') {
         Validation.isEmpty(name);
         Validation.isEmpty(surname);
         Validation.isPassword(password);
-        Validation.isSex(sex);
         Validation.isEmail(email);
-        Validation.isType(type);
+        Validation.isSex(sex);
+        Validation.isEntryLevel(entryLevel);
 
+        this.uuid = uuidv4();
         this.dateRegistration = moment().format("DD/MM/YYYY");
         this.name = name;
         this.surname = surname;
-        this.dateOfBirth = moment(dateOfBirth, ['MM.DD.YYYY', 'DD.MM.YYYY', 'YYYY.MM.DD', 'YYYY.DD.MM']).format('DD/MM/YYYY')
+        this.dateOfBirth = moment(dateOfBirth, ['MM.DD.YYYY', 'DD.MM.YYYY', 'YYYY.MM.DD', 'YYYY.DD.MM']).format('DD/MM/YYYY');
         this.password = password;
         this.sex = sex;
         this.email = email;
-        this.type = type;
-        this.entryLevel = 'user';
+        this.entryLevel = entryLevel;
     }
 
     updateEmail(email) {
@@ -73,8 +76,8 @@ class User {
 }
 
 class Admin extends User {
-    constructor(name, surname, dateOfBirth, password, sex, email, type = 'admin') {
-        super(name, surname, dateOfBirth, password, sex, email, type); // zmienic na ...arguments
+    constructor(name, surname, email, password, dateOfBirth, sex, entryLevel = 'admin') {
+        super(name, surname, email, password, dateOfBirth, sex, entryLevel = 'admin');
     }
 
     changePasswordUser(user, password) {
@@ -82,37 +85,93 @@ class Admin extends User {
         Validation.isPassword(password);
         user.password = password;
     }
-    changeTypeUser(user, type) {
-        Validation.isUser(user);
-        Validation.isType(type);
-        user.type = type;
-        //po zmianie user ma sie stac klasa admin - dodać mu metody
-    }
 
+    // changeUserEntryLevel(user, name, surname, email, password, dateOfBirth, sex, entryLevel = 'admin') {
+    //     Validation.isUser(user);
+    //     Validation.isEmpty(name);
+    //     Validation.isEmpty(surname);
+    //     Validation.isPassword(password);
+    //     Validation.isEmail(email);
+    //     Validation.isSex(sex);
+    //     Validation.isEntryLevel(entryLevel);
+
+    //     return (
+    //         user.uuid = user.uuid,
+    //         user.name = name,
+    //         user.surname = surname,
+    //         user.email = email,
+    //         user.password = password,
+    //         user.dateOfBirth = moment(dateOfBirth, ['MM.DD.YYYY', 'DD.MM.YYYY', 'YYYY.MM.DD', 'YYYY.DD.MM']).format('DD/MM/YYYY'),
+    //         user.sex = sex,
+    //         user.entryLevel = entryLevel
+    //     )
+    // }
+
+    changeEntryLevel(user) {
+        return (
+            user.uuid = this.uuid,
+            user.name = this.name,
+            user.surname = this.surname,
+            user.email = this.email,
+            user.dateOfBirth = this.dateOfBirth,
+            user.password = this.password, user.sex = this.sex,
+            user.entryLevel = 'admin'
+        )
+
+    }
 }
+
+// nie
+// 2:06
+// zmiana danych powinna operować na clasie User
+// 2:07
+// a nie na tym co wpada do kontrutkroa
+// 2:07
+// to nie jest poprawnie zrobione
+
+// Piotr  2:07 PM
+// ok
+
+// Piotr  2:22 PM
+// ale ok, bo nie wiem czy ja to dobrze rozumuję. do metody muszę przekazać class User i na niej operować, ale żeby zmienić jej dane to potrzebuje wywoływać je jako argumenty ?
+
+// Przemek:bulb:  2:22 PM
+// do metody musisz przekazać w argumencie instancję user
+// 2:23
+// a ma wyjść instancja admin
 
 const user = new User(
     "piotr",
     "gdula",
-    "26.09.1992",
-    "Qwer12342?!",
-    "male",
     "piotr@gmail.com",
-    'user'
+    "Qwer12342?!",
+    "20.03.1990",
+    'male'
 );
+
+const user2 = new User(
+    "piotr",
+    "gdula",
+    "piotr@gmail.com",
+    "Qwer12342?!",
+    "20.03.1990",
+    'male'
+);
+
 const admin = new Admin(
     "jan",
     "kowalski",
-    "26.09.1992",
-    "Qwer1234?!",
-    "female",
     "jan@gmail.com",
-    'admin'
+    "Qwer1234?!",
+    "19.02.1988",
+    "female",
 );
+
+
 console.log(user);
+console.log(user2);
 console.log(admin);
-admin.changePasswordUser(user, 'Jacek342342?!');
-console.log(user);
-console.log(admin);
-admin.changeTypeUser(user, 'admin')
-console.log(user);
+
+const adminFromUser = admin.changeEntryLevel(user2);
+console.log(adminFromUser);
+console.log(adminFromUser instanceof Admin);
