@@ -86,59 +86,35 @@ class Admin extends User {
         user.password = password;
     }
 
-    // changeUserEntryLevel(user, name, surname, email, password, dateOfBirth, sex, entryLevel = 'admin') {
-    //     Validation.isUser(user);
-    //     Validation.isEmpty(name);
-    //     Validation.isEmpty(surname);
-    //     Validation.isPassword(password);
-    //     Validation.isEmail(email);
-    //     Validation.isSex(sex);
-    //     Validation.isEntryLevel(entryLevel);
-
-    //     return (
-    //         user.uuid = user.uuid,
-    //         user.name = name,
-    //         user.surname = surname,
-    //         user.email = email,
-    //         user.password = password,
-    //         user.dateOfBirth = moment(dateOfBirth, ['MM.DD.YYYY', 'DD.MM.YYYY', 'YYYY.MM.DD', 'YYYY.DD.MM']).format('DD/MM/YYYY'),
-    //         user.sex = sex,
-    //         user.entryLevel = entryLevel
-    //     )
-    // }
-
     changeEntryLevel(user) {
-        return (
-            user.uuid = this.uuid,
-            user.name = this.name,
-            user.surname = this.surname,
-            user.email = this.email,
-            user.dateOfBirth = this.dateOfBirth,
-            user.password = this.password, user.sex = this.sex,
-            user.entryLevel = 'admin'
-        )
-
+        let newAdminUser = new Admin(user.name, user.surname, user.email, user.password, user.dateOfBirth, user.sex, 'admin');
+        newAdminUser.uuid = user.uuid;
+        return newAdminUser;
     }
 }
 
-// nie
-// 2:06
-// zmiana danych powinna operować na clasie User
-// 2:07
-// a nie na tym co wpada do kontrutkroa
-// 2:07
-// to nie jest poprawnie zrobione
+class Users {
+    constructor(...usersObjs) {
+        this.arrayWithUsers = [];
+        usersObjs.forEach(element => {
+            if (Validation.isUser(element)) {
+                this.arrayWithUsers.push(element);
+            }
+        })
+    }
 
-// Piotr  2:07 PM
-// ok
+    addUsersToArray(...usersObj) {
+        usersObj.forEach(element => {
+            if (!Validation.isUser(element)) return false;
+        })
+        this.arrayWithUsers.push(...usersObj);
+    }
 
-// Piotr  2:22 PM
-// ale ok, bo nie wiem czy ja to dobrze rozumuję. do metody muszę przekazać class User i na niej operować, ale żeby zmienić jej dane to potrzebuje wywoływać je jako argumenty ?
+    deleteUserFromArray(userObj) {
+        this.arrayWithUsers = this.arrayWithUsers.filter(element => element.uuid !== userObj.uuid);
+    }
+}
 
-// Przemek:bulb:  2:22 PM
-// do metody musisz przekazać w argumencie instancję user
-// 2:23
-// a ma wyjść instancja admin
 
 const user = new User(
     "piotr",
@@ -167,7 +143,6 @@ const admin = new Admin(
     "female",
 );
 
-
 console.log(user);
 console.log(user2);
 console.log(admin);
@@ -175,3 +150,6 @@ console.log(admin);
 const adminFromUser = admin.changeEntryLevel(user2);
 console.log(adminFromUser);
 console.log(adminFromUser instanceof Admin);
+
+const users = new Users(user, user2, admin, adminFromUser);
+console.log(users);

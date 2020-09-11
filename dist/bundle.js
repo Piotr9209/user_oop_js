@@ -23226,56 +23226,62 @@ var Admin = function (_User) {
             Validation.isPassword(password);
             user.password = password;
         }
-
-        // changeUserEntryLevel(user, name, surname, email, password, dateOfBirth, sex, entryLevel = 'admin') {
-        //     Validation.isUser(user);
-        //     Validation.isEmpty(name);
-        //     Validation.isEmpty(surname);
-        //     Validation.isPassword(password);
-        //     Validation.isEmail(email);
-        //     Validation.isSex(sex);
-        //     Validation.isEntryLevel(entryLevel);
-
-        //     return (
-        //         user.uuid = user.uuid,
-        //         user.name = name,
-        //         user.surname = surname,
-        //         user.email = email,
-        //         user.password = password,
-        //         user.dateOfBirth = moment(dateOfBirth, ['MM.DD.YYYY', 'DD.MM.YYYY', 'YYYY.MM.DD', 'YYYY.DD.MM']).format('DD/MM/YYYY'),
-        //         user.sex = sex,
-        //         user.entryLevel = entryLevel
-        //     )
-        // }
-
     }, {
         key: "changeEntryLevel",
         value: function changeEntryLevel(user) {
-            return user.uuid = this.uuid, user.name = this.name, user.surname = this.surname, user.email = this.email, user.dateOfBirth = this.dateOfBirth, user.password = this.password, user.sex = this.sex, user.entryLevel = 'admin';
+            var newAdminUser = new Admin(user.name, user.surname, user.email, user.password, user.dateOfBirth, user.sex, 'admin');
+            newAdminUser.uuid = user.uuid;
+            return newAdminUser;
         }
     }]);
 
     return Admin;
 }(User);
 
-// nie
-// 2:06
-// zmiana danych powinna operować na clasie User
-// 2:07
-// a nie na tym co wpada do kontrutkroa
-// 2:07
-// to nie jest poprawnie zrobione
+var Users = function () {
+    function Users() {
+        var _this2 = this;
 
-// Piotr  2:07 PM
-// ok
+        _classCallCheck(this, Users);
 
-// Piotr  2:22 PM
-// ale ok, bo nie wiem czy ja to dobrze rozumuję. do metody muszę przekazać class User i na niej operować, ale żeby zmienić jej dane to potrzebuje wywoływać je jako argumenty ?
+        this.arrayWithUsers = [];
 
-// Przemek:bulb:  2:22 PM
-// do metody musisz przekazać w argumencie instancję user
-// 2:23
-// a ma wyjść instancja admin
+        for (var _len = arguments.length, usersObjs = Array(_len), _key = 0; _key < _len; _key++) {
+            usersObjs[_key] = arguments[_key];
+        }
+
+        usersObjs.forEach(function (element) {
+            if (Validation.isUser(element)) {
+                _this2.arrayWithUsers.push(element);
+            }
+        });
+    }
+
+    _createClass(Users, [{
+        key: "addUsersToArray",
+        value: function addUsersToArray() {
+            var _arrayWithUsers;
+
+            for (var _len2 = arguments.length, usersObj = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                usersObj[_key2] = arguments[_key2];
+            }
+
+            usersObj.forEach(function (element) {
+                if (!Validation.isUser(element)) return false;
+            });
+            (_arrayWithUsers = this.arrayWithUsers).push.apply(_arrayWithUsers, usersObj);
+        }
+    }, {
+        key: "deleteUserFromArray",
+        value: function deleteUserFromArray(userObj) {
+            this.arrayWithUsers = this.arrayWithUsers.filter(function (element) {
+                return element.uuid !== userObj.uuid;
+            });
+        }
+    }]);
+
+    return Users;
+}();
 
 var user = new User("piotr", "gdula", "piotr@gmail.com", "Qwer12342?!", "20.03.1990", 'male');
 
@@ -23290,6 +23296,9 @@ console.log(admin);
 var adminFromUser = admin.changeEntryLevel(user2);
 console.log(adminFromUser);
 console.log(adminFromUser instanceof Admin);
+
+var users = new Users(user, user2, admin, adminFromUser);
+console.log(users);
 
 /***/ })
 
